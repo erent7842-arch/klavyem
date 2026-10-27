@@ -5,184 +5,344 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Klavyem | Yazmayı Öğren</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f4f8ff;color:#172554}
-header{background:#2563eb;color:white;padding:22px;text-align:center}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#eef6ff;
+  color:#183153;
+  text-align:center;
+}
+header{
+  background:#2563eb;
+  color:white;
+  padding:22px;
+  font-size:27px;
+  font-weight:bold;
+}
 main{max-width:850px;margin:auto;padding:20px}
-section{background:white;padding:22px;margin:18px 0;border-radius:18px;box-shadow:0 3px 12px #0001}
+.panel{
+  background:white;
+  margin:20px 0;
+  padding:24px;
+  border-radius:20px;
+  box-shadow:0 4px 14px #00000012;
+}
 h2{color:#2563eb}
-button,select{padding:12px;border:0;border-radius:10px;background:#2563eb;color:white;cursor:pointer;margin:5px}
-input,textarea{padding:12px;border:1px solid #ccd5e5;border-radius:10px;width:100%;font-size:17px}
-textarea{min-height:100px}
-#metin{font-size:20px;line-height:1.8}
-#sonuc{font-weight:bold;font-size:20px}
-#site{display:none}
-#kilit{max-width:650px;margin:30px auto}
+video{width:100%;max-height:450px;background:#111;border-radius:12px}
+button{
+  border:0;
+  border-radius:12px;
+  padding:13px 20px;
+  background:#2563eb;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:8px;
+}
+button:disabled{background:#999;cursor:not-allowed}
+input,select{
+  padding:13px;
+  border:2px solid #cbd5e1;
+  border-radius:10px;
+  font-size:16px;
+  max-width:100%;
+}
+.sentence{
+  background:#eaf2ff;
+  border-radius:12px;
+  padding:20px;
+  font-size:22px;
+  line-height:1.7;
+  margin:15px 0;
+}
+.hidden{display:none!important}
+.small{color:#64748b;font-size:14px}
+#result{font-size:20px;font-weight:bold;margin:15px}
 </style>
 </head>
+
 <body>
-<header>
-<h1>⌨️ Klavyem</h1>
-<p>Hızlı yazmayı öğren, kendini geliştir!</p>
-<label>Arka plan fotoğrafı seç:
-<input type="file" id="foto" accept="image/*">
-</label>
-</header>
+<header>⌨️ Klavyem</header>
 
 <main>
-<section id="kilit">
-<h2>🎬 Önce eğitim videosu</h2>
-<p>Diğer alıştırmalara geçmeden önce eğitim videosunu tamamla.</p>
-<video id="video" controls controlsList="nodownload noplaybackrate"
-preload="metadata" style="width:100%;border-radius:12px">
-<source src="egitim.mp4" type="video/mp4">
-Tarayıcın video oynatmayı desteklemiyor.
+
+<!-- VİDEO TAMAMLANMADAN DİĞER BÖLÜMLER AÇILMAZ -->
+<section id="videoPage" class="panel">
+<h2>🎬 Önce Eğitim Videosu</h2>
+<p>Devam edebilmek için videoyu sonuna kadar izle.</p>
+
+<video id="trainingVideo" controls controlsList="nodownload noplaybackrate">
+  <source src="egitim.mp4" type="video/mp4">
+  Tarayıcın video oynatmayı desteklemiyor.
 </video>
-<p id="videoDurum">Video tamamlanınca alıştırmalar açılacak.</p>
+
+<p id="videoMessage">Video henüz tamamlanmadı.</p>
+<button id="continueBtn" disabled onclick="continueToLessons()">
+Devam Et
+</button>
+<p class="small">Video bitmeden devam butonu açılmaz.</p>
 </section>
 
-<div id="site">
-<section>
-<h2>📚 Yazma alıştırması</h2>
-<p>Metni aşağıdaki kutuya doğru şekilde yaz.</p>
-<p id="metin"></p>
-<textarea id="yazi" placeholder="Buraya yazmaya başla..."></textarea>
-<p id="dogruluk">Doğruluk: %100</p>
-<button onclick="yeniMetin()">Yeni cümle</button>
+<!-- EĞİTİM VE DİĞER BÖLÜMLER -->
+<div id="learningPage" class="hidden">
+
+<section class="panel">
+<h2>📚 Yazma Alıştırması</h2>
+<p>Yukarıdaki cümleyi aşağıya doğru şekilde yaz.</p>
+<div id="sentence" class="sentence"></div>
+<input id="typing" style="width:100%" placeholder="Cümleyi buraya yaz..." autocomplete="off">
+<p id="lessonMessage">Yazmaya başlayabilirsin!</p>
+<button onclick="checkSentence()">Kontrol Et</button>
+<button onclick="nextSentence()">Sonraki Cümle</button>
+<p>Alıştırma: <b id="lessonCount">0</b></p>
 </section>
 
-<section>
-<h2>⏱️ Hız testi</h2>
-<p>Süreyi seç, başlat ve metni yazmaya başla.</p>
-<select id="sure">
+<section class="panel">
+<h2>⏱️ Çevrimdışı Hız Testi</h2>
+<p>İnternet gerekmez. Süreni seç ve başlayınca metni yaz.</p>
+<select id="duration">
 <option value="30">30 saniye</option>
 <option value="60" selected>60 saniye</option>
 <option value="120">2 dakika</option>
 </select>
-<button onclick="baslat()">Başlat</button>
-<p>Kalan süre: <b id="kalan">60</b> saniye</p>
-<p id="sonuc">Hazır olduğunda başla!</p>
+
+<div id="speedSentence" class="sentence">
+Bugün klavyede daha hızlı ve doğru yazmayı öğreniyorum.
+Düzenli alıştırma yapmak zamanla gelişmeme yardımcı olur.
+</div>
+
+<input id="speedInput" style="width:100%" placeholder="Başlamak için buraya yaz..." disabled>
+<p>Kalan süre: <b id="timeLeft">60</b> saniye</p>
+<p id="speedResult">Hazır olduğunda başla.</p>
+<button id="startSpeed" onclick="startSpeedTest()">Testi Başlat</button>
+<button onclick="resetSpeedTest()">Yeniden Dene</button>
 </section>
 
-<section>
-<h2>🏁 Çevrim dışı yarış</h2>
-<p>İnternet olmadan da kendi yazma hızını deneyebilirsin.</p>
-<p>Bu bölüm tek kişilik hız denemesidir. Arkadaşlarla canlı yarış özelliğini ayrıca bağlayacağız.</p>
-<button onclick="baslat()">Yarışı başlat</button>
+<section class="panel">
+<h2>🏁 Kendinle Yarış</h2>
+<p>İnternet olmadan da hızını ölçebilirsin.</p>
+<p>En yüksek doğru yazma hızına ulaşmaya çalış!</p>
+<button onclick="document.getElementById('duration').value='30';resetSpeedTest();startSpeedTest()">30 Saniye</button>
+<button onclick="document.getElementById('duration').value='60';resetSpeedTest();startSpeedTest()">60 Saniye</button>
+<button onclick="document.getElementById('duration').value='120';resetSpeedTest();startSpeedTest()">2 Dakika</button>
 </section>
+
+<section class="panel">
+<h2>🌄 Arka Planını Değiştir</h2>
+<p>Bilgisayarından bir resim seçebilirsin.</p>
+<input type="file" id="backgroundPicker" accept="image/*">
+<button onclick="clearBackground()">Varsayılana Dön</button>
+</section>
+
+<section class="panel">
+<h2>🌐 Arkadaşınla Online Yarış</h2>
+<p>Bu bölümün iki ayrı cihazda gerçekten çalışması için internet üzerinden eşleşme sunucusu gerekir.</p>
+<p>Bu örnek kod tek başına gerçek online yarış başlatmaz.</p>
+<input id="raceId" placeholder="Arkadaşının yarış kodu">
+<button onclick="makeRaceId()">Örnek Kod Oluştur</button>
+<p id="raceMessage"></p>
+</section>
+
 </div>
 </main>
 
 <script>
-const cumleler=[
-"Bugün hızlı ve doğru yazmayı öğreniyorum.",
-"Klavyemi kullanarak kendimi her gün geliştiriyorum.",
-"Başarı için düzenli çalışmak çok önemlidir.",
-"Türkçe yazarken noktalama işaretlerine dikkat ederim.",
-"Her gün biraz pratik yapmak beni daha iyi yapar.",
-"Bilgisayar kullanmak öğrenmeyi kolaylaştırır.",
-"Doğru yazmak hızlı yazmaktan daha önemlidir.",
-"Sabırlı olursam hedeflerime ulaşabilirim.",
-"Yeni bilgiler öğrenmek çok güzel bir duygudur.",
-"Arkadaşlarımla birlikte eğlenerek öğreniyorum."
+const video = document.getElementById("trainingVideo");
+const videoPage = document.getElementById("videoPage");
+const learningPage = document.getElementById("learningPage");
+const continueBtn = document.getElementById("continueBtn");
+const videoMessage = document.getElementById("videoMessage");
+
+let videoDone = localStorage.getItem("klavyem_video_done") === "yes";
+let lessonCount = Number(localStorage.getItem("klavyem_lessons") || 0);
+let currentSentence = 0;
+let speedTimer = null;
+let remaining = 60;
+let testRunning = false;
+let testStart = 0;
+let backgroundUrl = null;
+
+const sentences = [
+"Bugün klavyede daha hızlı yazmayı öğreniyorum.",
+"Her gün biraz pratik yapmak beni geliştirir.",
+"Doğru yazmak hızlı yazmak kadar önemlidir.",
+"Bilgisayar kullanırken dikkatli olmalıyım.",
+"Türkçe yazarken harflere doğru basmalıyım.",
+"Düzenli çalışarak daha iyi sonuçlar alabilirim.",
+"Yeni şeyler öğrenmek beni mutlu eder.",
+"Klavyede pratik yapmak zamanla kolaylaşır.",
+"Sabırlı olmak başarıya ulaşmama yardımcı olur.",
+"Her alıştırmada biraz daha gelişiyorum.",
+"Kitap okumak kelime bilgimi geliştirir.",
+"Bugün öğrendiğim bilgileri yarın da kullanırım.",
+"Yazarken ekrana ve cümleye dikkat etmeliyim.",
+"Hatalarımı düzelterek daha iyi öğrenebilirim.",
+"Bilgisayarımda yeni beceriler kazanıyorum.",
+"Doğru oturmak ve rahat yazmak önemlidir.",
+"Türkçe karakterleri doğru kullanmaya çalışıyorum.",
+"Her gün kendime yeni bir hedef koyuyorum.",
+"Başlamak öğrenmenin en önemli adımlarından biridir.",
+"Çalıştıkça klavyeyi daha rahat kullanıyorum."
 ];
-let metin="",sure=60,kalan=60,aktif=false,baslangic=0,harf=0,dogru=0,aralik=null;
 
-const video=document.getElementById("video");
-const kilit=document.getElementById("kilit");
-const site=document.getElementById("site");
-const yazi=document.getElementById("yazi");
-
-function ac(){
-kilit.style.display="none";
-site.style.display="block";
-}
-if(localStorage.getItem("klavyemVideoTamam")==="evet") ac();
-
-video.addEventListener("ended",()=>{
-localStorage.setItem("klavyemVideoTamam","evet");
-document.getElementById("videoDurum").textContent="Eğitim tamamlandı! Alıştırmalar açıldı.";
-ac();
-});
-
-let izlenen=0;
-video.addEventListener("timeupdate",()=>{
-if(video.currentTime>izlenen) izlenen=video.currentTime;
-});
-video.addEventListener("seeking",()=>{
-if(video.currentTime>izlenen+1.5) video.currentTime=izlenen;
-});
-
-function yeniMetin(){
-metin=cumleler[Math.floor(Math.random()*cumleler.length)];
-document.getElementById("metin").textContent=metin;
-yazi.value="";
-document.getElementById("dogruluk").textContent="Doğruluk: %100";
-}
-yeniMetin();
-
-yazi.addEventListener("input",()=>{
-if(!aktif){
-let yazilan=yazi.value;
-let d=0;
-for(let i=0;i<yazilan.length;i++) if(yazilan[i]===metin[i]) d++;
-document.getElementById("dogruluk").textContent=
-"Doğruluk: %"+(yazilan.length?Math.round(d/yazilan.length*100):100);
-return;
-}
-});
-
-function baslat(){
-clearInterval(aralik);
-sure=Number(document.getElementById("sure").value);
-kalan=sure;
-harf=0;
-dogru=0;
-aktif=true;
-baslangic=Date.now();
-yazi.value="";
-yazi.focus();
-document.getElementById("kalan").textContent=kalan;
-document.getElementById("sonuc").textContent="Başladı! Yazmaya devam et.";
-aralik=setInterval(()=>{
-kalan--;
-document.getElementById("kalan").textContent=kalan;
-if(kalan<=0) bitir();
-},1000);
+function showVideoPage(){
+  videoPage.classList.remove("hidden");
+  learningPage.classList.add("hidden");
 }
 
-yazi.addEventListener("input",()=>{
-if(!aktif)return;
-let yazilan=yazi.value;
-harf=yazilan.length;
-dogru=0;
-for(let i=0;i<yazilan.length;i++) if(yazilan[i]===metin[i]) dogru++;
-document.getElementById("dogruluk").textContent=
-"Doğruluk: %"+(harf?Math.round(dogru/harf*100):100);
-if(yazilan===metin){
-yeniMetin();
-}
-});
-
-function bitir(){
-clearInterval(aralik);
-aktif=false;
-let dakika=sure/60;
-let hiz=Math.round(harf/5/dakika);
-let oran=harf?Math.round(dogru/harf*100):100;
-document.getElementById("sonuc").textContent=
-"Test bitti! Yaklaşık hızın: "+hiz+" kelime/dakika. Doğruluk: %"+oran;
+function continueToLessons(){
+  if(!videoDone){
+    alert("Önce eğitim videosunu tamamen bitirmelisin.");
+    return;
+  }
+  videoPage.classList.add("hidden");
+  learningPage.classList.remove("hidden");
+  showSentence();
 }
 
-document.getElementById("foto").addEventListener("change",e=>{
-const f=e.target.files[0];
-if(!f)return;
-const url=URL.createObjectURL(f);
-document.body.style.backgroundImage="url('"+url+"')";
-document.body.style.backgroundSize="cover";
-document.body.style.backgroundAttachment="fixed";
+if(videoDone){
+  continueBtn.disabled = false;
+  videoMessage.textContent = "Video daha önce tamamlandı.";
+  continueBtn.textContent = "Eğitime Devam Et";
+} else {
+  showVideoPage();
+  continueBtn.disabled = true;
+}
+
+video.addEventListener("ended", function(){
+  videoDone = true;
+  localStorage.setItem("klavyem_video_done", "yes");
+  continueBtn.disabled = false;
+  videoMessage.textContent = "Video tamamlandı! Artık devam edebilirsin.";
 });
+
+// Video tamamlanmadan diğer bölümlere geçilemez.
+// İleri sarma denemesinde izlenen son noktaya geri dönülür.
+let maxWatched = 0;
+video.addEventListener("timeupdate", function(){
+  if(!video.seeking && video.currentTime > maxWatched){
+    maxWatched = video.currentTime;
+  }
+});
+video.addEventListener("seeking", function(){
+  if(!videoDone && video.currentTime > maxWatched + 1.5){
+    video.currentTime = maxWatched;
+  }
+});
+
+function showSentence(){
+  document.getElementById("sentence").textContent =
+    sentences[currentSentence % sentences.length];
+  document.getElementById("typing").value = "";
+  document.getElementById("lessonMessage").textContent = "Cümleyi yaz ve kontrol et.";
+  document.getElementById("lessonCount").textContent = lessonCount;
+}
+
+function checkSentence(){
+  const target = sentences[currentSentence % sentences.length];
+  const typed = document.getElementById("typing").value.trim();
+  if(typed === target){
+    lessonCount++;
+    localStorage.setItem("klavyem_lessons", lessonCount);
+    document.getElementById("lessonMessage").textContent = "Harika! Doğru yazdın. 🎉";
+    document.getElementById("lessonCount").textContent = lessonCount;
+  } else {
+    document.getElementById("lessonMessage").textContent =
+      "Henüz tam doğru değil. Cümleyi tekrar kontrol et.";
+  }
+}
+
+function nextSentence(){
+  currentSentence++;
+  showSentence();
+}
+
+function startSpeedTest(){
+  resetSpeedTest();
+  remaining = Number(document.getElementById("duration").value);
+  document.getElementById("timeLeft").textContent = remaining;
+  const input = document.getElementById("speedInput");
+  input.disabled = false;
+  input.value = "";
+  input.focus();
+  testRunning = true;
+  testStart = Date.now();
+  document.getElementById("startSpeed").disabled = true;
+
+  speedTimer = setInterval(function(){
+    remaining--;
+    document.getElementById("timeLeft").textContent = remaining;
+    if(remaining <= 0) finishSpeedTest();
+  }, 1000);
+}
+
+function finishSpeedTest(){
+  if(!testRunning) return;
+  testRunning = false;
+  clearInterval(speedTimer);
+  const input = document.getElementById("speedInput");
+  input.disabled = true;
+
+  const typed = input.value;
+  const elapsed = Math.max((Date.now() - testStart) / 1000, 1);
+  const words = typed.trim() ? typed.trim().split(/\s+/).length : 0;
+  const wpm = Math.round(words / elapsed * 60);
+  const target = document.getElementById("speedSentence").textContent.replace(/\s+/g," ").trim();
+  let correct = 0;
+  for(let i=0;i<typed.length;i++){
+    if(typed[i] === target[i]) correct++;
+  }
+  const accuracy = typed.length ? Math.round(correct / typed.length * 100) : 0;
+  document.getElementById("speedResult").textContent =
+    "Sonuç: " + wpm + " kelime/dakika • " +
+    accuracy + "% doğruluk • " + typed.length + " karakter";
+  document.getElementById("startSpeed").disabled = false;
+}
+
+function resetSpeedTest(){
+  clearInterval(speedTimer);
+  testRunning = false;
+  remaining = Number(document.getElementById("duration").value);
+  document.getElementById("timeLeft").textContent = remaining;
+  document.getElementById("speedInput").value = "";
+  document.getElementById("speedInput").disabled = true;
+  document.getElementById("speedResult").textContent = "Hazır olduğunda başla.";
+  document.getElementById("startSpeed").disabled = false;
+}
+
+document.getElementById("speedInput").addEventListener("input", function(){
+  if(testRunning && this.value.length >= document.getElementById("speedSentence").textContent.length){
+    // Süre dolana kadar yazmaya devam edebilirsin.
+  }
+});
+
+document.getElementById("backgroundPicker").addEventListener("change", function(){
+  const file = this.files && this.files[0];
+  if(!file) return;
+  if(backgroundUrl) URL.revokeObjectURL(backgroundUrl);
+  backgroundUrl = URL.createObjectURL(file);
+  document.body.style.backgroundImage = "url('" + backgroundUrl + "')";
+  document.body.style.backgroundSize = "cover";
+  document.body.style.backgroundAttachment = "fixed";
+});
+
+function clearBackground(){
+  if(backgroundUrl) URL.revokeObjectURL(backgroundUrl);
+  backgroundUrl = null;
+  document.body.style.backgroundImage = "none";
+  document.body.style.backgroundColor = "#eef6ff";
+}
+
+function makeRaceId(){
+  const id = Math.random().toString(36).slice(2,8).toUpperCase();
+  document.getElementById("raceId").value = id;
+  document.getElementById("raceMessage").textContent =
+    "Örnek kod oluşturuldu. Bu kod başka cihazla gerçek eşleşme sağlamaz; sunucu gerekir.";
+}
 </script>
 </body>
 </html>
