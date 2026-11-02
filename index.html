@@ -3,345 +3,442 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Klavyem | Yazmayı Öğren</title>
-
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#eef6ff;
-  color:#183153;
-  text-align:center;
-}
-header{
-  background:#2563eb;
-  color:white;
-  padding:22px;
-  font-size:27px;
-  font-weight:bold;
-}
-main{max-width:850px;margin:auto;padding:20px}
-.panel{
-  background:white;
-  margin:20px 0;
-  padding:24px;
-  border-radius:20px;
-  box-shadow:0 4px 14px #00000012;
-}
-h2{color:#2563eb}
-video{width:100%;max-height:450px;background:#111;border-radius:12px}
-button{
-  border:0;
-  border-radius:12px;
-  padding:13px 20px;
-  background:#2563eb;
-  color:white;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-  margin:8px;
-}
-button:disabled{background:#999;cursor:not-allowed}
-input,select{
-  padding:13px;
-  border:2px solid #cbd5e1;
-  border-radius:10px;
-  font-size:16px;
-  max-width:100%;
-}
-.sentence{
-  background:#eaf2ff;
-  border-radius:12px;
-  padding:20px;
-  font-size:22px;
-  line-height:1.7;
-  margin:15px 0;
-}
-.hidden{display:none!important}
-.small{color:#64748b;font-size:14px}
-#result{font-size:20px;font-weight:bold;margin:15px}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f4fa;color:#26334a}
+header{background:#244477;color:white;text-align:center;padding:25px}
+header h1{margin:0;font-size:32px}
+main{max-width:900px;margin:25px auto;padding:12px}
+.panel{background:white;padding:22px;margin-bottom:20px;border-radius:15px;box-shadow:0 3px 12px #0001}
+h2{margin-top:0;color:#294b83}
+button{background:#315fba;color:white;border:0;padding:11px 17px;border-radius:8px;cursor:pointer;margin:5px}
+button:hover{background:#23488e}
+button:disabled{opacity:.5;cursor:not-allowed}
+input,textarea{padding:12px;border:1px solid #ccd3df;border-radius:8px;font-size:16px;max-width:100%}
+textarea{width:100%;min-height:90px}
+#sentence,#raceSentence{font-size:21px;background:#edf2fb;padding:18px;border-radius:10px}
+.player{padding:12px;background:#edf2fb;margin:7px 0;border-radius:8px}
+video{width:100%;max-height:400px;border-radius:10px}
+.small{color:#68758a;font-size:14px}
+.status{font-weight:bold;margin-top:12px}
 </style>
 </head>
-
 <body>
-<header>⌨️ Klavyem</header>
+
+<header>
+<h1>⌨️ Klavyem</h1>
+<p>Hızlı yazmayı öğren, kendini geliştir!</p>
+</header>
 
 <main>
 
-<!-- VİDEO TAMAMLANMADAN DİĞER BÖLÜMLER AÇILMAZ -->
-<section id="videoPage" class="panel">
-<h2>🎬 Önce Eğitim Videosu</h2>
-<p>Devam edebilmek için videoyu sonuna kadar izle.</p>
-
-<video id="trainingVideo" controls controlsList="nodownload noplaybackrate">
-  <source src="egitim.mp4" type="video/mp4">
-  Tarayıcın video oynatmayı desteklemiyor.
+<section class="panel" id="videoPanel">
+<h2>🎬 Eğitim Videosu</h2>
+<p>Devam etmek için eğitim videosunu izle.</p>
+<video id="trainingVideo" controls controlsList="nodownload">
+<source src="egitim.mp4" type="video/mp4">
+Tarayıcın video oynatmayı desteklemiyor.
 </video>
-
-<p id="videoMessage">Video henüz tamamlanmadı.</p>
-<button id="continueBtn" disabled onclick="continueToLessons()">
-Devam Et
-</button>
-<p class="small">Video bitmeden devam butonu açılmaz.</p>
+<p id="videoStatus">Video tamamlanınca diğer bölümler açılır.</p>
 </section>
 
-<!-- EĞİTİM VE DİĞER BÖLÜMLER -->
-<div id="learningPage" class="hidden">
+<div id="mainContent" style="display:none">
 
 <section class="panel">
-<h2>📚 Yazma Alıştırması</h2>
-<p>Yukarıdaki cümleyi aşağıya doğru şekilde yaz.</p>
-<div id="sentence" class="sentence"></div>
-<input id="typing" style="width:100%" placeholder="Cümleyi buraya yaz..." autocomplete="off">
-<p id="lessonMessage">Yazmaya başlayabilirsin!</p>
-<button onclick="checkSentence()">Kontrol Et</button>
-<button onclick="nextSentence()">Sonraki Cümle</button>
-<p>Alıştırma: <b id="lessonCount">0</b></p>
+<h2>⌨️ Yazma Alıştırması</h2>
+<p id="sentence">Bugün hızlı yazmayı öğreniyorum.</p>
+<textarea id="typingInput" placeholder="Yukarıdaki cümleyi buraya yaz..." oninput="checkTyping()"></textarea>
+<p id="typingStatus">Yazmaya başla!</p>
+<button onclick="nextSentence()">Yeni Cümle</button>
 </section>
 
 <section class="panel">
-<h2>⏱️ Çevrimdışı Hız Testi</h2>
-<p>İnternet gerekmez. Süreni seç ve başlayınca metni yaz.</p>
-<select id="duration">
-<option value="30">30 saniye</option>
-<option value="60" selected>60 saniye</option>
-<option value="120">2 dakika</option>
-</select>
-
-<div id="speedSentence" class="sentence">
-Bugün klavyede daha hızlı ve doğru yazmayı öğreniyorum.
-Düzenli alıştırma yapmak zamanla gelişmeme yardımcı olur.
-</div>
-
-<input id="speedInput" style="width:100%" placeholder="Başlamak için buraya yaz..." disabled>
-<p>Kalan süre: <b id="timeLeft">60</b> saniye</p>
-<p id="speedResult">Hazır olduğunda başla.</p>
-<button id="startSpeed" onclick="startSpeedTest()">Testi Başlat</button>
-<button onclick="resetSpeedTest()">Yeniden Dene</button>
-</section>
-
-<section class="panel">
-<h2>🏁 Kendinle Yarış</h2>
-<p>İnternet olmadan da hızını ölçebilirsin.</p>
-<p>En yüksek doğru yazma hızına ulaşmaya çalış!</p>
-<button onclick="document.getElementById('duration').value='30';resetSpeedTest();startSpeedTest()">30 Saniye</button>
-<button onclick="document.getElementById('duration').value='60';resetSpeedTest();startSpeedTest()">60 Saniye</button>
-<button onclick="document.getElementById('duration').value='120';resetSpeedTest();startSpeedTest()">2 Dakika</button>
-</section>
-
-<section class="panel">
-<h2>🌄 Arka Planını Değiştir</h2>
-<p>Bilgisayarından bir resim seçebilirsin.</p>
-<input type="file" id="backgroundPicker" accept="image/*">
-<button onclick="clearBackground()">Varsayılana Dön</button>
+<h2>⏱️ Hız Testi</h2>
+<p>Test süresini seç:</p>
+<button onclick="startTest(30)">30 saniye</button>
+<button onclick="startTest(60)">60 saniye</button>
+<button onclick="startTest(120)">120 saniye</button>
+<p id="testText">Testi başlatmak için süre seç.</p>
+<textarea id="testInput" placeholder="Süre başlayınca yazmaya başla..." disabled></textarea>
+<p id="testResult"></p>
 </section>
 
 <section class="panel">
 <h2>🌐 Arkadaşınla Online Yarış</h2>
-<p>Bu bölümün iki ayrı cihazda gerçekten çalışması için internet üzerinden eşleşme sunucusu gerekir.</p>
-<p>Bu örnek kod tek başına gerçek online yarış başlatmaz.</p>
-<input id="raceId" placeholder="Arkadaşının yarış kodu">
-<button onclick="makeRaceId()">Örnek Kod Oluştur</button>
-<p id="raceMessage"></p>
+<p>Oda oluştur veya arkadaşının koduyla katıl. En fazla 6 kişi yarışabilir.</p>
+<button onclick="createRoom()">Oda Oluştur</button>
+<br>
+<input id="roomCode" placeholder="Oda kodu">
+<button onclick="joinRoom()">Odaya Katıl</button>
+<p id="raceStatus" class="status">Bağlantı bekleniyor...</p>
+<div id="players"></div>
+<button id="readyButton" onclick="toggleReady()" disabled>Hazırım</button>
+<button id="startButton" onclick="startRace()" style="display:none">Yarışı Başlat</button>
+<button id="leaveButton" onclick="leaveRoom()" style="display:none">Odadan Ayrıl</button>
+
+<div id="raceArea" style="display:none">
+<h3>Yarış cümlesi</h3>
+<p id="raceSentence">Klavyem ile hızlı yazmayı öğreniyorum.</p>
+<textarea id="raceInput" placeholder="Cümleyi buraya yaz..." oninput="updateProgress()"></textarea>
+<p id="raceProgress"></p>
+</div>
+</section>
+
+<section class="panel">
+<h2>🎨 Arka Plan</h2>
+<input type="file" id="backgroundFile" accept="image/*" onchange="changeBackground(event)">
+<button onclick="clearBackground()">Arka Planı Temizle</button>
 </section>
 
 </div>
 </main>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC4FxuEaaGrgHXz4Bed00S-a3D3M9YGfSM8",
+  authDomain: "klavyem.firebaseapp.com",
+  databaseURL: "https://klavyem-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "klavyem",
+  storageBucket: "klavyem.firebasestorage.app",
+  messagingSenderId: "106088587998",
+  appId: "1:106088587998:web:14be02ee1dd58f32f9984f",
+  measurementId: "G-SXHQF52XQM"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let myId = null;
+let currentRoom = null;
+let roomListener = null;
+let isReady = false;
+let raceStarted = false;
+let testTimer = null;
+let testStartTime = 0;
+
+auth.signInAnonymously()
+.then(result => {
+  myId = result.user.uid;
+  document.getElementById("raceStatus").textContent = "Online bağlantı hazır.";
+})
+.catch(error => {
+  document.getElementById("raceStatus").textContent =
+    "Bağlantı hatası: " + error.message;
+});
+
 const video = document.getElementById("trainingVideo");
-const videoPage = document.getElementById("videoPage");
-const learningPage = document.getElementById("learningPage");
-const continueBtn = document.getElementById("continueBtn");
-const videoMessage = document.getElementById("videoMessage");
 
-let videoDone = localStorage.getItem("klavyem_video_done") === "yes";
-let lessonCount = Number(localStorage.getItem("klavyem_lessons") || 0);
-let currentSentence = 0;
-let speedTimer = null;
-let remaining = 60;
-let testRunning = false;
-let testStart = 0;
-let backgroundUrl = null;
+if(localStorage.getItem("klavyem_video_done")==="true"){
+  document.getElementById("videoPanel").style.display="none";
+  document.getElementById("mainContent").style.display="block";
+}
 
-const sentences = [
-"Bugün klavyede daha hızlı yazmayı öğreniyorum.",
-"Her gün biraz pratik yapmak beni geliştirir.",
-"Doğru yazmak hızlı yazmak kadar önemlidir.",
-"Bilgisayar kullanırken dikkatli olmalıyım.",
-"Türkçe yazarken harflere doğru basmalıyım.",
-"Düzenli çalışarak daha iyi sonuçlar alabilirim.",
-"Yeni şeyler öğrenmek beni mutlu eder.",
-"Klavyede pratik yapmak zamanla kolaylaşır.",
-"Sabırlı olmak başarıya ulaşmama yardımcı olur.",
-"Her alıştırmada biraz daha gelişiyorum.",
-"Kitap okumak kelime bilgimi geliştirir.",
-"Bugün öğrendiğim bilgileri yarın da kullanırım.",
-"Yazarken ekrana ve cümleye dikkat etmeliyim.",
-"Hatalarımı düzelterek daha iyi öğrenebilirim.",
-"Bilgisayarımda yeni beceriler kazanıyorum.",
-"Doğru oturmak ve rahat yazmak önemlidir.",
-"Türkçe karakterleri doğru kullanmaya çalışıyorum.",
-"Her gün kendime yeni bir hedef koyuyorum.",
-"Başlamak öğrenmenin en önemli adımlarından biridir.",
-"Çalıştıkça klavyeyi daha rahat kullanıyorum."
+video.addEventListener("ended",()=>{
+  localStorage.setItem("klavyem_video_done","true");
+  document.getElementById("videoPanel").style.display="none";
+  document.getElementById("mainContent").style.display="block";
+});
+
+const sentences=[
+"Bugün hızlı yazmayı öğreniyorum.",
+"Klavyemi kullanarak kendimi geliştiriyorum.",
+"Düzenli çalışmak başarı getirir.",
+"Her gün biraz daha hızlı yazıyorum.",
+"Bilgisayar kullanmak eğlencelidir.",
+"Yeni şeyler öğrenmek çok güzeldir.",
+"Başarı sabır ve çalışmayla gelir.",
+"Teknoloji hayatımızı kolaylaştırır."
 ];
 
-function showVideoPage(){
-  videoPage.classList.remove("hidden");
-  learningPage.classList.add("hidden");
-}
-
-function continueToLessons(){
-  if(!videoDone){
-    alert("Önce eğitim videosunu tamamen bitirmelisin.");
-    return;
-  }
-  videoPage.classList.add("hidden");
-  learningPage.classList.remove("hidden");
-  showSentence();
-}
-
-if(videoDone){
-  continueBtn.disabled = false;
-  videoMessage.textContent = "Video daha önce tamamlandı.";
-  continueBtn.textContent = "Eğitime Devam Et";
-} else {
-  showVideoPage();
-  continueBtn.disabled = true;
-}
-
-video.addEventListener("ended", function(){
-  videoDone = true;
-  localStorage.setItem("klavyem_video_done", "yes");
-  continueBtn.disabled = false;
-  videoMessage.textContent = "Video tamamlandı! Artık devam edebilirsin.";
-});
-
-// Video tamamlanmadan diğer bölümlere geçilemez.
-// İleri sarma denemesinde izlenen son noktaya geri dönülür.
-let maxWatched = 0;
-video.addEventListener("timeupdate", function(){
-  if(!video.seeking && video.currentTime > maxWatched){
-    maxWatched = video.currentTime;
-  }
-});
-video.addEventListener("seeking", function(){
-  if(!videoDone && video.currentTime > maxWatched + 1.5){
-    video.currentTime = maxWatched;
-  }
-});
-
-function showSentence(){
-  document.getElementById("sentence").textContent =
-    sentences[currentSentence % sentences.length];
-  document.getElementById("typing").value = "";
-  document.getElementById("lessonMessage").textContent = "Cümleyi yaz ve kontrol et.";
-  document.getElementById("lessonCount").textContent = lessonCount;
-}
-
-function checkSentence(){
-  const target = sentences[currentSentence % sentences.length];
-  const typed = document.getElementById("typing").value.trim();
-  if(typed === target){
-    lessonCount++;
-    localStorage.setItem("klavyem_lessons", lessonCount);
-    document.getElementById("lessonMessage").textContent = "Harika! Doğru yazdın. 🎉";
-    document.getElementById("lessonCount").textContent = lessonCount;
-  } else {
-    document.getElementById("lessonMessage").textContent =
-      "Henüz tam doğru değil. Cümleyi tekrar kontrol et.";
-  }
-}
+let sentenceIndex=0;
 
 function nextSentence(){
-  currentSentence++;
-  showSentence();
+  sentenceIndex=(sentenceIndex+1)%sentences.length;
+  document.getElementById("sentence").textContent=sentences[sentenceIndex];
+  document.getElementById("typingInput").value="";
+  document.getElementById("typingStatus").textContent="Yeni cümleyi yaz!";
 }
 
-function startSpeedTest(){
-  resetSpeedTest();
-  remaining = Number(document.getElementById("duration").value);
-  document.getElementById("timeLeft").textContent = remaining;
-  const input = document.getElementById("speedInput");
-  input.disabled = false;
-  input.value = "";
+function checkTyping(){
+  const target=document.getElementById("sentence").textContent;
+  const typed=document.getElementById("typingInput").value;
+
+  if(typed===target){
+    document.getElementById("typingStatus").textContent="Harika! Doğru yazdın.";
+  }else if(target.startsWith(typed)){
+    document.getElementById("typingStatus").textContent="Devam et!";
+  }else{
+    document.getElementById("typingStatus").textContent="Bir yerde hata var.";
+  }
+}
+
+function startTest(seconds){
+  clearInterval(testTimer);
+  testStartTime=Date.now();
+
+  const input=document.getElementById("testInput");
+  input.value="";
+  input.disabled=false;
   input.focus();
-  testRunning = true;
-  testStart = Date.now();
-  document.getElementById("startSpeed").disabled = true;
 
-  speedTimer = setInterval(function(){
-    remaining--;
-    document.getElementById("timeLeft").textContent = remaining;
-    if(remaining <= 0) finishSpeedTest();
-  }, 1000);
+  document.getElementById("testResult").textContent="";
+
+  testTimer=setInterval(()=>{
+    const remaining=seconds-Math.floor((Date.now()-testStartTime)/1000);
+
+    if(remaining<=0){
+      clearInterval(testTimer);
+      input.disabled=true;
+      const words=input.value.trim().split(/\s+/).filter(Boolean).length;
+      document.getElementById("testText").textContent="Test bitti!";
+      document.getElementById("testResult").textContent=
+        "Yazdığın kelime sayısı: "+words;
+    }else{
+      document.getElementById("testText").textContent=
+        "Kalan süre: "+remaining+" saniye";
+    }
+  },250);
+
+  document.getElementById("testText").textContent=
+    "Kalan süre: "+seconds+" saniye";
 }
 
-function finishSpeedTest(){
-  if(!testRunning) return;
-  testRunning = false;
-  clearInterval(speedTimer);
-  const input = document.getElementById("speedInput");
-  input.disabled = true;
-
-  const typed = input.value;
-  const elapsed = Math.max((Date.now() - testStart) / 1000, 1);
-  const words = typed.trim() ? typed.trim().split(/\s+/).length : 0;
-  const wpm = Math.round(words / elapsed * 60);
-  const target = document.getElementById("speedSentence").textContent.replace(/\s+/g," ").trim();
-  let correct = 0;
-  for(let i=0;i<typed.length;i++){
-    if(typed[i] === target[i]) correct++;
-  }
-  const accuracy = typed.length ? Math.round(correct / typed.length * 100) : 0;
-  document.getElementById("speedResult").textContent =
-    "Sonuç: " + wpm + " kelime/dakika • " +
-    accuracy + "% doğruluk • " + typed.length + " karakter";
-  document.getElementById("startSpeed").disabled = false;
+function changeBackground(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.body.style.backgroundImage="url('"+e.target.result+"')";
+    document.body.style.backgroundSize="cover";
+    localStorage.setItem("klavyem_background",e.target.result);
+  };
+  reader.readAsDataURL(file);
 }
-
-function resetSpeedTest(){
-  clearInterval(speedTimer);
-  testRunning = false;
-  remaining = Number(document.getElementById("duration").value);
-  document.getElementById("timeLeft").textContent = remaining;
-  document.getElementById("speedInput").value = "";
-  document.getElementById("speedInput").disabled = true;
-  document.getElementById("speedResult").textContent = "Hazır olduğunda başla.";
-  document.getElementById("startSpeed").disabled = false;
-}
-
-document.getElementById("speedInput").addEventListener("input", function(){
-  if(testRunning && this.value.length >= document.getElementById("speedSentence").textContent.length){
-    // Süre dolana kadar yazmaya devam edebilirsin.
-  }
-});
-
-document.getElementById("backgroundPicker").addEventListener("change", function(){
-  const file = this.files && this.files[0];
-  if(!file) return;
-  if(backgroundUrl) URL.revokeObjectURL(backgroundUrl);
-  backgroundUrl = URL.createObjectURL(file);
-  document.body.style.backgroundImage = "url('" + backgroundUrl + "')";
-  document.body.style.backgroundSize = "cover";
-  document.body.style.backgroundAttachment = "fixed";
-});
 
 function clearBackground(){
-  if(backgroundUrl) URL.revokeObjectURL(backgroundUrl);
-  backgroundUrl = null;
-  document.body.style.backgroundImage = "none";
-  document.body.style.backgroundColor = "#eef6ff";
+  document.body.style.backgroundImage="";
+  localStorage.removeItem("klavyem_background");
 }
 
-function makeRaceId(){
-  const id = Math.random().toString(36).slice(2,8).toUpperCase();
-  document.getElementById("raceId").value = id;
-  document.getElementById("raceMessage").textContent =
-    "Örnek kod oluşturuldu. Bu kod başka cihazla gerçek eşleşme sağlamaz; sunucu gerekir.";
+const savedBackground=localStorage.getItem("klavyem_background");
+if(savedBackground){
+  document.body.style.backgroundImage="url('"+savedBackground+"')";
+  document.body.style.backgroundSize="cover";
+}
+
+function makeCode(){
+  return Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+async function createRoom(){
+  if(!myId)return alert("Bağlantı bekleniyor.");
+  if(currentRoom)return alert("Zaten bir odadasın.");
+
+  const code=makeCode();
+  const roomRef=db.ref("races/"+code);
+
+  const room={
+    host:myId,
+    started:false,
+    createdAt:firebase.database.ServerValue.TIMESTAMP,
+    players:{
+      [myId]:{
+        name:"Oyuncu 1",
+        ready:false,
+        progress:0
+      }
+    }
+  };
+
+  try{
+    await roomRef.set(room);
+    currentRoom=code;
+    document.getElementById("roomCode").value=code;
+    document.getElementById("raceStatus").textContent="Oda kodun: "+code;
+    setupRoom();
+  }catch(error){
+    alert("Oda oluşturulamadı: "+error.message);
+  }
+}
+
+async function joinRoom(){
+  if(!myId)return alert("Bağlantı bekleniyor.");
+  if(currentRoom)return alert("Önce mevcut odadan ayrıl.");
+
+  const code=document.getElementById("roomCode").value.trim().toUpperCase();
+  if(!code)return alert("Oda kodunu yaz.");
+
+  const roomRef=db.ref("races/"+code);
+
+  try{
+    const result=await roomRef.transaction(room=>{
+      if(!room || room.started)return;
+      room.players=room.players||{};
+
+      if(room.players[myId])return room;
+      if(Object.keys(room.players).length>=6)return;
+
+      room.players[myId]={
+        name:"Oyuncu "+(Object.keys(room.players).length+1),
+        ready:false,
+        progress:0
+      };
+
+      return room;
+    });
+
+    if(!result.committed){
+      return alert("Odaya katılınamadı. Kod yanlış, oda dolu veya yarış başlamış olabilir.");
+    }
+
+    currentRoom=code;
+    document.getElementById("raceStatus").textContent="Odaya katıldın!";
+    setupRoom();
+  }catch(error){
+    alert("Katılma hatası: "+error.message);
+  }
+}
+
+function setupRoom(){
+  const roomRef=db.ref("races/"+currentRoom);
+
+  document.getElementById("readyButton").disabled=false;
+  document.getElementById("leaveButton").style.display="inline-block";
+
+  roomListener=snapshot=>{
+    const room=snapshot.val();
+
+    if(!room){
+      document.getElementById("raceStatus").textContent="Oda kapatıldı.";
+      return;
+    }
+
+    const players=room.players||{};
+    const list=document.getElementById("players");
+    list.innerHTML="";
+
+    Object.entries(players).forEach(([id,player])=>{
+      const div=document.createElement("div");
+      div.className="player";
+      div.textContent=player.name+
+        (player.ready?" - Hazır":" - Bekliyor")+
+        " - "+(player.progress||0)+"%";
+      list.appendChild(div);
+    });
+
+    document.getElementById("startButton").style.display=
+      room.host===myId&&!room.started?"inline-block":"none";
+
+    if(room.started&&!raceStarted){
+      raceStarted=true;
+      document.getElementById("raceArea").style.display="block";
+      document.getElementById("raceStatus").textContent="Yarış başladı!";
+    }
+  };
+
+  roomRef.on("value",roomListener);
+}
+
+async function toggleReady(){
+  if(!currentRoom)return;
+
+  isReady=!isReady;
+
+  try{
+    await db.ref("races/"+currentRoom+"/players/"+myId+"/ready").set(isReady);
+    document.getElementById("readyButton").textContent=
+      isReady?"Hazır Değilim":"Hazırım";
+  }catch(error){
+    alert("İşlem yapılamadı: "+error.message);
+    isReady=!isReady;
+  }
+}
+
+async function startRace(){
+  if(!currentRoom)return;
+
+  const roomRef=db.ref("races/"+currentRoom);
+  const snapshot=await roomRef.get();
+  const room=snapshot.val();
+
+  if(!room||room.host!==myId)return alert("Yalnızca oda sahibi başlatabilir.");
+
+  const players=Object.values(room.players||{});
+
+  if(players.length<2)return alert("En az 2 oyuncu gerekli.");
+  if(!players.every(player=>player.ready))return alert("Herkes hazır olmalı.");
+
+  await roomRef.update({started:true});
+}
+
+async function updateProgress(){
+  if(!currentRoom||!raceStarted)return;
+
+  const target="Klavyem ile hızlı yazmayı öğreniyorum.";
+  const typed=document.getElementById("raceInput").value;
+
+  let correct=0;
+  for(let i=0;i<typed.length&&i<target.length;i++){
+    if(typed[i]===target[i])correct++;
+  }
+
+  const progress=Math.floor(correct/target.length*100);
+
+  document.getElementById("raceProgress").textContent=
+    "İlerlemen: "+progress+"%";
+
+  try{
+    await db.ref("races/"+currentRoom+"/players/"+myId+"/progress").set(progress);
+  }catch(error){
+    document.getElementById("raceProgress").textContent=
+      "İlerleme kaydedilemedi: "+error.message;
+  }
+
+  if(progress>=100){
+    document.getElementById("raceProgress").textContent="Yarışı tamamladın!";
+  }
+}
+
+async function leaveRoom(){
+  if(!currentRoom)return;
+
+  const code=currentRoom;
+  const roomRef=db.ref("races/"+code);
+
+  try{
+    const snapshot=await roomRef.get();
+    const room=snapshot.val();
+
+    if(room){
+      if(room.host===myId){
+        await roomRef.remove();
+      }else{
+        await roomRef.child("players/"+myId).remove();
+      }
+    }
+  }catch(error){
+    alert("Odadan ayrılırken hata: "+error.message);
+  }
+
+  roomRef.off("value",roomListener);
+  currentRoom=null;
+  roomListener=null;
+  isReady=false;
+  raceStarted=false;
+
+  document.getElementById("players").innerHTML="";
+  document.getElementById("raceArea").style.display="none";
+  document.getElementById("leaveButton").style.display="none";
+  document.getElementById("readyButton").disabled=true;
+  document.getElementById("readyButton").textContent="Hazırım";
+  document.getElementById("raceStatus").textContent="Odadan ayrıldın.";
 }
 </script>
 </body>
